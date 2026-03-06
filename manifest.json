@@ -1,7 +1,7 @@
 {
 	"id": "vault-dictionary",
 	"name": "Vault Dictionary",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"minAppVersion": "1.11.4",
 	"description": "Automatically highlight and display definitions for specific words throughout your notes.",
 	"author": "Taha Yigit Melek",
