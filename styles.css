@@ -111,7 +111,7 @@
 	height: 100px;
 }
 
-/* UI Alignment Fixes */
+
 .dict-add-form-container {
 	display: flex;
 	flex-direction: column;
@@ -119,9 +119,9 @@
 
 .dict-add-form-container .setting-item-control {
 	flex: 0 0 50%;
-	/* Force controls (input wrappers) to be 50% width */
+
 	justify-content: flex-end;
-	/* Align right */
+
 }
 
 .dict-add-form-container .setting-item-control input,
