@@ -31,10 +31,10 @@ export class DictionarySettingTab extends PluginSettingTab {
 
 		const infoBar = containerEl.createDiv({ cls: 'dict-settings-info-bar' });
 
-		infoBar.createEl('span', { text: `Dictionary Path :  ` });
+		infoBar.createEl('span', { text: `Dictionary path: ` });
 		infoBar.createEl('code', { text: `${this.plugin.app.vault.configDir}/vault-dictionary.json` });
 
-		new Setting(containerEl).setName("Add New Entry").setHeading();
+		new Setting(containerEl).setName("Add new entry").setHeading();
 
 		let newWord = '';
 		let newDesc = '';
@@ -45,7 +45,7 @@ export class DictionarySettingTab extends PluginSettingTab {
 			.setName('Word(s)')
 			.setDesc('Comma separated list of aliases')
 			.addText(text => text
-				.setPlaceholder('spring, spring boot')
+				.setPlaceholder('Spring, spring boot')
 				.onChange(value => newWord = value)
 			);
 
@@ -60,7 +60,7 @@ export class DictionarySettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.addButton(btn => btn
-				.setButtonText("Add Entry")
+				.setButtonText("Add entry")
 				.setCta()
 				.onClick(async () => {
 					if (!newWord.trim() || !newDesc.trim()) {
@@ -77,7 +77,7 @@ export class DictionarySettingTab extends PluginSettingTab {
 				})
 			);
 
-		new Setting(containerEl).setName("Existing Dictionary Words").setHeading();
+		new Setting(containerEl).setName("Existing dictionary words").setHeading();
 
 		this.plugin.settings.dictionary.sort((a, b) => (a.words[0] || '').localeCompare(b.words[0] || ''));
 
@@ -110,9 +110,9 @@ export class DictionarySettingTab extends PluginSettingTab {
 
 		const trHead = table.createEl('tr');
 
-		const thWords = trHead.createEl('th', { text: "Words/Aliases", cls: 'dict-th dict-th-words' });
-		const thDesc = trHead.createEl('th', { text: "Description", cls: 'dict-th dict-th-desc' });
-		const thAction = trHead.createEl('th', { text: "Action", cls: 'dict-th dict-th-action' });
+		trHead.createEl('th', { text: "Words/aliases", cls: 'dict-th dict-th-words' });
+		trHead.createEl('th', { text: "Description", cls: 'dict-th dict-th-desc' });
+		trHead.createEl('th', { text: "Action", cls: 'dict-th dict-th-action' });
 
 		filteredDictionary.forEach((entry) => {
 			const tr = table.createEl('tr');
@@ -120,7 +120,7 @@ export class DictionarySettingTab extends PluginSettingTab {
 			const tdWords = tr.createEl('td', { cls: 'dict-td' });
 			const inputWords = tdWords.createEl('input', { cls: 'dict-word-input' });
 			inputWords.type = 'text';
-			inputWords.placeholder = 'spring, spring boot';
+			inputWords.placeholder = 'Spring, spring boot';
 			inputWords.value = entry.words.join(', ');
 			inputWords.onchange = async (e: Event) => {
 				entry.words = (e.target as HTMLInputElement).value.split(',').map(s => s.trim()).filter(s => s.length > 0);

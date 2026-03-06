@@ -1,5 +1,6 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, Setting, normalizePath } from 'obsidian';
-import { DEFAULT_SETTINGS, DictionaryPluginSettings, DictionarySettingTab } from "./settings";
+import { EditorView } from '@codemirror/view';
+import { DEFAULT_SETTINGS, DictionaryPluginSettings, DictionarySettingTab, DictionaryEntry } from "./settings";
 import { DictionaryMatcher } from "./dictionary-match";
 import { dictionaryReadingModeProcessor } from "./reading-mode";
 import { buildDictionaryLivePreview, dictionaryUpdateEffect } from "./live-preview";
@@ -35,7 +36,7 @@ export default class DictionaryPlugin extends Plugin {
 
 		this.addCommand({
 			id: 'refresh-dictionary',
-			name: 'Refresh Dictionary',
+			name: 'Refresh dictionary',
 			callback: async () => {
 				await this.loadDictionaryData();
 				this.updateDictionaryMatch();
@@ -49,7 +50,7 @@ export default class DictionaryPlugin extends Plugin {
 				if (selection && selection.trim().length > 0) {
 					menu.addItem((item) => {
 						item
-							.setTitle("Add to Dictionary")
+							.setTitle("Add to dictionary")
 							.setIcon("book-plus")
 							.onClick(() => {
 								new AddWordModal(this.app, this, selection.trim()).open();
@@ -66,7 +67,8 @@ export default class DictionaryPlugin extends Plugin {
 	}
 
 	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		 
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData() as Partial<DictionaryPluginSettings>);
 	}
 
 	async saveSettings() {
@@ -96,9 +98,11 @@ export default class DictionaryPlugin extends Plugin {
 		if (exists) {
 			const content = await this.app.vault.adapter.read(filePath);
 			try {
-				const parsed = JSON.parse(content);
+				 
+				const parsed = JSON.parse(content) as unknown;
 				if (Array.isArray(parsed)) {
-					this.settings.dictionary = parsed;
+					 
+					this.settings.dictionary = parsed as DictionaryEntry[];
 				}
 			} catch (e) {
 				console.error("Failed to parse dictionary JSON", e);
@@ -130,13 +134,16 @@ export default class DictionaryPlugin extends Plugin {
 				if (view.previewMode) {
 					view.previewMode.rerender(true);
 				}
-				if (view.editor && (view.editor as any).cm) {
-					const cm = (view.editor as any).cm;
+				const editor = view.editor as Editor & { cm?: EditorView };
+				if (editor && editor.cm) {
+					const cm = editor.cm;
 					try {
 						cm.dispatch({
 							effects: [dictionaryUpdateEffect.of(null)]
 						});
-					} catch (e) { }
+					} catch (e) {
+						console.error(e);
+					}
 				}
 			}
 		});

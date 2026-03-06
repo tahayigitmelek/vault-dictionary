@@ -8,7 +8,7 @@ export function showDictionaryTooltip(app: App, targetEl: HTMLElement, descripti
     tooltip.id = 'dict-custom-tooltip-id';
 
     const component = new Component();
-    MarkdownRenderer.render(app, description, tooltip, '', component);
+    void MarkdownRenderer.render(app, description, tooltip, '', component);
 
     document.body.appendChild(tooltip);
 
@@ -28,7 +28,7 @@ export function showDictionaryTooltip(app: App, targetEl: HTMLElement, descripti
 
     tooltip.style.top = `${top}px`;
     tooltip.style.left = `${left}px`;
-    tooltip.style.opacity = '1';
+    tooltip.setCssStyles({ opacity: '1' });
 
     const removeTooltip = (e: MouseEvent) => {
         const toElement = e.relatedTarget as Node | null;

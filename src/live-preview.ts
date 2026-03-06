@@ -52,7 +52,7 @@ export function buildDictionaryLivePreview(app: App, matcher: DictionaryMatcher)
                 const desc = target.dataset.dictDesc;
                 import('./tooltip').then(({ showDictionaryTooltip }) => {
                     showDictionaryTooltip(app, target, desc);
-                });
+                }).catch(console.error);
 
                 event.preventDefault();
                 return true;
