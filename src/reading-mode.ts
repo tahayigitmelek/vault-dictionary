@@ -26,39 +26,43 @@ export function dictionaryReadingModeProcessor(app: App, element: HTMLElement, m
 
         if (matches.length === 0) continue;
 
-        matches.sort((a, b) => b.start - a.start);
+        matches.sort((a, b) => a.start - b.start);
 
         const parent = textNode.parentNode;
-        if (!parent) continue;
+        if (!parent || !textNode.parentNode) continue;
 
-        let currentText = text;
-        let nextSibling: Node | null = textNode.nextSibling;
+        try {
+            const fragment = document.createDocumentFragment();
+            let lastIndex = 0;
 
-        for (const match of matches) {
-            const beforeText = currentText.substring(0, match.start);
-            const matchedWord = currentText.substring(match.start, match.end);
-            const afterText = currentText.substring(match.end);
+            for (const match of matches) {
+                if (match.start > lastIndex) {
+                    fragment.appendChild(document.createTextNode(text.substring(lastIndex, match.start)));
+                }
 
-            const afterNode = document.createTextNode(afterText);
-            if (afterText.length > 0) {
-                parent.insertBefore(afterNode, nextSibling);
+                const matchedWord = text.substring(match.start, match.end);
+                const span = document.createElement('span');
+                span.addClass('dict-highlight');
+                span.setText(matchedWord);
+
+                const description = match.description;
+                span.addEventListener('click', () => {
+                    showDictionaryTooltip(app, span, description);
+                });
+
+                fragment.appendChild(span);
+                lastIndex = match.end;
             }
-            nextSibling = afterNode;
 
-            const span = document.createElement('span');
-            span.addClass('dict-highlight');
-            span.setText(matchedWord);
+            if (lastIndex < text.length) {
+                fragment.appendChild(document.createTextNode(text.substring(lastIndex)));
+            }
 
-            span.addEventListener('click', (e) => {
-                showDictionaryTooltip(app, span, match.description);
-            });
-
-            parent.insertBefore(span, nextSibling);
-            nextSibling = span;
-
-            currentText = beforeText;
+            if (textNode.parentNode) {
+                textNode.parentNode.replaceChild(fragment, textNode);
+            }
+        } catch (e) {
+            console.debug('vault-dictionary: Skipped DOM update due to concurrent modification', e);
         }
-
-        textNode.nodeValue = currentText;
     }
 }
