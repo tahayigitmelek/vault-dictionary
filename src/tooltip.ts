@@ -3,14 +3,14 @@ import { App, Component, MarkdownRenderer } from "obsidian";
 export function showDictionaryTooltip(app: App, targetEl: HTMLElement, description: string) {
     closeDictionaryTooltip();
 
-    const tooltip = document.createElement('div');
+    const tooltip = createDiv();
     tooltip.addClass('dict-custom-tooltip');
     tooltip.id = 'dict-custom-tooltip-id';
 
     const component = new Component();
     void MarkdownRenderer.render(app, description, tooltip, '', component);
 
-    document.body.appendChild(tooltip);
+    activeDocument.body.appendChild(tooltip);
 
     const targetRect = targetEl.getBoundingClientRect();
     const tooltipRect = tooltip.getBoundingClientRect();
@@ -46,7 +46,7 @@ export function showDictionaryTooltip(app: App, targetEl: HTMLElement, descripti
 }
 
 export function closeDictionaryTooltip() {
-    const existing = document.getElementById('dict-custom-tooltip-id');
+    const existing = activeDocument.getElementById('dict-custom-tooltip-id');
     if (existing) {
         existing.remove();
     }

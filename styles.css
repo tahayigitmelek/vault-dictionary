@@ -130,9 +130,9 @@
 	resize: vertical;
 }
 
-.dict-bordered-input {
-	border: 1px solid var(--background-modifier-border) !important;
-	background-color: var(--background-modifier-form-field) !important;
+.setting-item .dict-bordered-input {
+	border: 1px solid var(--background-modifier-border);
+	background-color: var(--background-modifier-form-field);
 	border-radius: 4px;
 	padding: 8px;
 }

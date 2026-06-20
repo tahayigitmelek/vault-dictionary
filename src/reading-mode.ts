@@ -3,7 +3,7 @@ import { DictionaryMatcher } from "./dictionary-match";
 import { showDictionaryTooltip } from "./tooltip";
 
 export function dictionaryReadingModeProcessor(app: App, element: HTMLElement, matcher: DictionaryMatcher) {
-    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null);
+    const walker = activeDocument.createTreeWalker(element, NodeFilter.SHOW_TEXT, null);
     const nodesToProcess: Text[] = [];
 
     let node;
@@ -32,16 +32,16 @@ export function dictionaryReadingModeProcessor(app: App, element: HTMLElement, m
         if (!parent || !textNode.parentNode) continue;
 
         try {
-            const fragment = document.createDocumentFragment();
+            const fragment = createFragment();
             let lastIndex = 0;
 
             for (const match of matches) {
                 if (match.start > lastIndex) {
-                    fragment.appendChild(document.createTextNode(text.substring(lastIndex, match.start)));
+                    fragment.appendChild(activeDocument.createTextNode(text.substring(lastIndex, match.start)));
                 }
 
                 const matchedWord = text.substring(match.start, match.end);
-                const span = document.createElement('span');
+                const span = createSpan();
                 span.addClass('dict-highlight');
                 span.setText(matchedWord);
 
@@ -55,7 +55,7 @@ export function dictionaryReadingModeProcessor(app: App, element: HTMLElement, m
             }
 
             if (lastIndex < text.length) {
-                fragment.appendChild(document.createTextNode(text.substring(lastIndex)));
+                fragment.appendChild(activeDocument.createTextNode(text.substring(lastIndex)));
             }
 
             if (textNode.parentNode) {

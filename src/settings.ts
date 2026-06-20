@@ -31,7 +31,7 @@ export class DictionarySettingTab extends PluginSettingTab {
 
 		const infoBar = containerEl.createDiv({ cls: 'dict-settings-info-bar' });
 
-		infoBar.createEl('span', { text: `Dictionary path: ` });
+		infoBar.createSpan({ text: `Dictionary path: ` });
 		infoBar.createEl('code', { text: `${this.plugin.app.vault.configDir}/vault-dictionary.json` });
 
 		new Setting(containerEl).setName("Add new entry").setHeading();

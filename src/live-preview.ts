@@ -46,7 +46,7 @@ export function buildDictionaryLivePreview(app: App, matcher: DictionaryMatcher)
     });
 
     const dictionaryClickPlugin = EditorView.domEventHandlers({
-        click(event, view) {
+        click(event, _view) {
             const target = event.target as HTMLElement;
             if (target && target.hasClass("dict-live-preview-mark") && target.dataset.dictDesc) {
                 const desc = target.dataset.dictDesc;

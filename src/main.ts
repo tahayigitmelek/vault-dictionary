@@ -28,7 +28,7 @@ export default class DictionaryPlugin extends Plugin {
 
 		this.updateDictionaryMatch();
 
-		this.registerMarkdownPostProcessor((element, context) => {
+		this.registerMarkdownPostProcessor((element, _context) => {
 			dictionaryReadingModeProcessor(this.app, element, this.matcher);
 		});
 
@@ -45,7 +45,7 @@ export default class DictionaryPlugin extends Plugin {
 		});
 
 		this.registerEvent(
-			this.app.workspace.on("editor-menu", (menu, editor, view) => {
+			this.app.workspace.on("editor-menu", (menu, editor, _view) => {
 				const selection = editor.getSelection();
 				if (selection && selection.trim().length > 0) {
 					menu.addItem((item) => {
@@ -120,7 +120,7 @@ export default class DictionaryPlugin extends Plugin {
 		const settingsCopy = { ...this.settings, dictionary: [] };
 		await this.saveData(settingsCopy);
 
-		setTimeout(() => {
+		activeWindow.setTimeout(() => {
 			this.isSaving = false;
 		}, 500);
 	}
