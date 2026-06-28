@@ -26,7 +26,8 @@ export class DictionaryMatcher {
 
         allWords.sort((a, b) => b.length - a.length);
 
-        const pattern = `\\b(${allWords.join('|')})\\b`;
+        // const pattern = `\\b(${allWords.join('|')})\\b`;
+        const pattern = `(?<=^|[^\\p{L}\\p{N}_])(${allWords.join('|')})(?=$|[^\\p{L}\\p{N}_])`;
         this.regex = new RegExp(pattern, 'giu');
     }
 
