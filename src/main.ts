@@ -1,6 +1,6 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, Setting, normalizePath } from 'obsidian';
+import { App, Editor, MarkdownView, Modal, Notice, Plugin, normalizePath, setIcon } from 'obsidian';
 import { EditorView } from '@codemirror/view';
-import { DEFAULT_SETTINGS, DictionaryPluginSettings, DictionarySettingTab, DictionaryEntry } from "./settings";
+import { DEFAULT_SETTINGS, DictionaryPluginSettings, DictionarySettingTab, DictionaryEntry, parseDictionaryWords } from "./settings";
 import { DictionaryMatcher } from "./dictionary-match";
 import { dictionaryReadingModeProcessor } from "./reading-mode";
 import { buildDictionaryLivePreview, dictionaryUpdateEffect } from "./live-preview";
@@ -168,55 +168,71 @@ class AddWordModal extends Modal {
 	onOpen() {
 		const { contentEl } = this;
 		contentEl.empty();
-		contentEl.createEl("h2", { text: "Add new dictionary entry" });
+		contentEl.addClass('dict-add-modal');
 
-		new Setting(contentEl)
-			.setName('Word(s)')
-			.setDesc('Comma separated list of aliases')
-			.addText(text => {
-				text.setValue(this.words)
-					.onChange(value => {
-						this.words = value;
-					});
-				text.inputEl.addClass('dict-modal-input');
-				return text;
+		const header = contentEl.createDiv({ cls: 'dict-modal-header' });
+		header.createEl("h2", { text: "Add dictionary entry" });
+		header.createEl("p", { text: "Save the selected text as a highlighted term." });
+
+		const form = contentEl.createDiv({ cls: 'dict-modal-form' });
+
+		const wordsField = form.createDiv({ cls: 'dict-field' });
+		wordsField.createEl('label', { text: 'Words / aliases' });
+		const wordsInput = wordsField.createEl('textarea', { cls: 'dict-input dict-modal-input' });
+		wordsInput.value = this.words;
+		wordsInput.placeholder = 'Spring, spring boot';
+		wordsInput.oninput = (event: Event) => {
+			this.words = (event.target as HTMLTextAreaElement).value;
+		};
+
+		const descField = form.createDiv({ cls: 'dict-field' });
+		descField.createEl('label', { text: 'Definition' });
+		const descInput = descField.createEl('textarea', { cls: 'dict-input dict-modal-textarea' });
+		descInput.value = this.description;
+		descInput.placeholder = 'Meaning of the word...';
+		descInput.oninput = (event: Event) => {
+			this.description = (event.target as HTMLTextAreaElement).value;
+		};
+
+		const saveEntry = async () => {
+			const wordList = parseDictionaryWords(this.words);
+			const description = this.description.trim();
+
+			if (wordList.length === 0 || !description) {
+				new Notice("Words and description cannot be empty.");
+				return;
+			}
+
+			this.plugin.settings.dictionary.unshift({
+				words: wordList,
+				description
 			});
 
-		new Setting(contentEl)
-			.setName('Description')
-			.addTextArea(text => {
-				text.setValue(this.description)
-					.onChange(value => {
-						this.description = value;
-					});
-				text.inputEl.addClass('dict-modal-textarea');
-				return text;
+			await this.plugin.saveDictionaryData();
+			this.plugin.updateDictionaryMatch();
+
+			new Notice(`Added dictionary entry for ${wordList[0]}`);
+			this.close();
+		};
+
+		[wordsInput, descInput].forEach(input => {
+			input.addEventListener('keydown', (event: KeyboardEvent) => {
+				if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
+					event.preventDefault();
+					void saveEntry();
+				}
 			});
+		});
 
-		new Setting(contentEl)
-			.addButton(btn => btn
-				.setButtonText("Save")
-				.setCta()
-				.onClick(async () => {
-					if (!this.words.trim() || !this.description.trim()) {
-						new Notice("Words and description cannot be empty.");
-						return;
-					}
+		const actions = contentEl.createDiv({ cls: 'dict-modal-actions' });
+		const saveButton = actions.createEl('button', { cls: 'mod-cta' });
+		setIcon(saveButton, 'check');
+		saveButton.appendText(' Save');
+		saveButton.onclick = () => {
+			void saveEntry();
+		};
 
-					const wordList = this.words.split(',').map(s => s.trim()).filter(s => s.length > 0);
-
-					this.plugin.settings.dictionary.unshift({
-						words: wordList,
-						description: this.description.trim()
-					});
-
-					await this.plugin.saveDictionaryData();
-					this.plugin.updateDictionaryMatch();
-
-					new Notice(`Added dictionary entry for ${wordList[0]}`);
-					this.close();
-				})
-			);
+		window.setTimeout(() => descInput.focus(), 50);
 	}
 
 	onClose() {
